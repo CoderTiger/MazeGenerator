@@ -4,6 +4,7 @@ Stores the cells object's modifier properties
 
 
 import math
+import bpy
 from maze_generator.blender.modifier.helper import (
     add_modifier,
     ModifierCreator,
@@ -19,7 +20,7 @@ def setup_modifiers(scene, props, preferences) -> None:
     obj_cylinder = props.objects.cylinder
     obj_torus = props.objects.torus
     obj_thickness_shrinkwrap = props.objects.thickness_shrinkwrap
-    tex_disp = props.textures.displacement
+    tex_disp = bpy.data.textures.get(props.textures.displacement)
 
     modifiers = [
         ModifierCreator(

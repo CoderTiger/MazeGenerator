@@ -7,4 +7,4 @@ def generate_textures(textures, props) -> None:
         tex_disp = textures.new(name=TEX_DISP_NAME, type="CLOUDS")
         tex_disp.noise_scale = 50
     tex_disp.cloud_type = "COLOR"
-    props.textures.displacement = tex_disp
+    props.textures.displacement = tex_disp.name

@@ -32,13 +32,15 @@ def build_objects(props, preferences, grid):
     bm_walls = bmesh.new()
     bm_walls.from_mesh(mesh_walls)
 
+    # ...existing code...
     distance_vc = bm_cells.loops.layers.color.new(DISTANCE)
     group_vc = bm_cells.loops.layers.color.new(GROUP)
     neighbors_vc = bm_cells.loops.layers.color.new(NEIGHBORS)
-    vg_cells = bm_cells.verts.layers.deform.new()
-    vg_walls = bm_walls.verts.layers.deform.new()
+    vg_cells = bm_cells.verts.layers.deform.verify()
+    vg_walls = bm_walls.verts.layers.deform.verify()
 
     random.seed(props.display.seed_color)
+    # ...existing code...
 
     groups = grid.groups
     group_colors = {}
@@ -56,6 +58,7 @@ def build_objects(props, preferences, grid):
     bm_cells.verts.ensure_lookup_table()
     bm_walls.verts.ensure_lookup_table()
 
+    # ...existing code...
     vg_props = preferences.vertex_groups_names
     vg_stairs_index = get_vertex_group_index(props.objects.cells, vg_props.stairs_name)
     vg_longest_path_index = get_vertex_group_index(props.objects.cells, vg_props.longest_path_name)
@@ -67,17 +70,27 @@ def build_objects(props, preferences, grid):
         cell_group = verts_range.cell_group
         links = verts_range.links
 
+        # Clamp values to [0, 1]
+        relative_distance = max(0.0, min(1.0, relative_distance))
+        is_longest_path = max(0.0, min(1.0, float(is_longest_path)))
+
         for v_ind in _range:
             bm_cells_vert = bm_cells.verts[v_ind]
-            bm_cells_vert[vg_cells][vg_stairs_index] = relative_distance
-            bm_cells_vert[vg_cells][vg_longest_path_index] = is_longest_path
+            if vg_stairs_index != -1:
+                bm_cells_vert[vg_cells][vg_stairs_index] = relative_distance
+            if vg_longest_path_index != -1:
+                bm_cells_vert[vg_cells][vg_longest_path_index] = is_longest_path
 
             bm_walls_vert = bm_walls.verts[v_ind]
-            bm_walls_vert[vg_walls][vg_stairs_index] = relative_distance
-            bm_walls_vert[vg_walls][vg_thickness_index] = 1
-            bm_walls_vert[vg_walls][vg_longest_path_index] = is_longest_path
+            if vg_stairs_index != -1:
+                bm_walls_vert[vg_walls][vg_stairs_index] = relative_distance
+            if vg_thickness_index != -1:
+                bm_walls_vert[vg_walls][vg_thickness_index] = 1
+            if vg_longest_path_index != -1:
+                bm_walls_vert[vg_walls][vg_longest_path_index] = is_longest_path
 
             for loop in bm_cells_vert.link_loops:
+    # ...existing code...
                 loop[distance_vc] = (relative_distance, is_longest_path, 0, 0)
                 loop[group_vc] = group_colors[cell_group]
                 loop[neighbors_vc] = neighbors_colors[links]
@@ -88,11 +101,15 @@ def build_objects(props, preferences, grid):
     mesh_cells.transform(Matrix.Translation(grid.offset))
     mesh_walls.transform(Matrix.Translation(grid.offset))
 
+    # ...existing code...
     if props.meshes.use_smooth:  # Update only when the mesh is supposed to be smoothed, default will be unsmoothed
         props.meshes.update_smooth()
     for mesh in (mesh_cells, mesh_walls):
-        mesh.use_auto_smooth = True
-        mesh.auto_smooth_angle = 0.5
+        try:
+            mesh.use_auto_smooth = True
+            mesh.auto_smooth_angle = 0.5
+        except AttributeError:
+            pass  # use_auto_smooth removed in Blender 4.1+
 
 
 def get_mesh_info(grid, inset, force_outside):
@@ -112,16 +129,18 @@ def get_mesh_info(grid, inset, force_outside):
 
         faces.append(verts_indices)
         this_distance = grid.distances[c]
+        # ...existing code...
         ranges_info.append(
             VerticesRangeInfo(
                 _range=verts_indices,
-                relative_distance=(this_distance / max_distance) if this_distance else -1,
+                relative_distance=(this_distance / max_distance) if this_distance else 0,
                 is_longest_path=0 if c in longest_path else 1,
                 # TODO : use pointer to cell if no other info is required :
                 cell_group=c.group,
                 links=len(c.links),
             )
         )
+    # ...existing code...
         half_neighbors = c.half_neighbors
         for direction, w in enumerate(c.get_wall_mask()):
             if w and direction < len(verts_indices):

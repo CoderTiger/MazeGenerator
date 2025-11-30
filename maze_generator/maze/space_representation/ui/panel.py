@@ -90,9 +90,12 @@ class SpaceRepresentationPanel(bpy.types.Panel):
                         row.prop(mg_props.space_rep_props, "basement", text="Basement", toggle=True)
 
                 row = layout.row(align=True)
-                tex_disp_mod = obj_cells.modifiers.get("MG_TEX_DISP")
+                tex_disp_mod = obj_cells.modifiers.get(mg_props.mod_names.texture_disp)
                 if tex_disp_mod:
                     row.prop(tex_disp_mod, "strength", text="Inflate", slider=True)
-                row.prop(mg_props.textures.displacement, "noise_scale", text="Scale", slider=True)
+                
+                tex = bpy.data.textures.get(mg_props.textures.displacement)
+                if tex:
+                    row.prop(tex, "noise_scale", text="Scale", slider=True)
             except ReferenceError:
                 pass

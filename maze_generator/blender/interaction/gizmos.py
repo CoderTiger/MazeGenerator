@@ -46,7 +46,10 @@ class MazeWidgetGroup(GizmoGroup):
         mg_props = context.scene.mg_props
         self.setup_widget(mg_props, "maze_columns_gizmo", color=(1, 0, 0), rot_axis="Y", rot_angle=90)
         self.setup_widget(mg_props, "maze_rows_or_radius_gizmo", color=(0, 1, 0), rot_axis="X", rot_angle=-90)
-        self.setup_widget(mg_props.objects.cells.modifiers[mg_props.mod_names.stairs], "strength", color=(0, 0, 1))
+        
+        stairs_mod = mg_props.objects.cells.modifiers.get(mg_props.mod_names.stairs)
+        if stairs_mod:
+            self.setup_widget(stairs_mod, "strength", color=(0, 0, 1))
         # self.setup_widget(om.obj_cells.modifiers[mm.M_THICKNESS_DISP], "strength", color=(0, 0, 1), rot_axis='X', rot_angle=180)
 
     def refresh(self, context):

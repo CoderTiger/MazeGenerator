@@ -11,7 +11,10 @@ from maze_generator.blender.mesh.constants import (
     GROUP,
 )
 from maze_generator.blender.mesh.prop import VerticesRangeInfo
-from maze_generator.blender.mesh.vertex_groups.helper import get_vertex_group_index
+from maze_generator.blender.mesh.vertex_groups.helper import (
+    get_vertex_group_index,
+    ensure_vertex_group_exists,
+)
 
 def build_objects(props, preferences, grid):
     mesh_cells = props.objects.cells.data
@@ -60,6 +63,15 @@ def build_objects(props, preferences, grid):
 
     # ...existing code...
     vg_props = preferences.vertex_groups_names
+
+    ensure_vertex_group_exists(props.objects.cells, vg_props.stairs_name)
+    ensure_vertex_group_exists(props.objects.cells, vg_props.longest_path_name)
+    ensure_vertex_group_exists(props.objects.cells, vg_props.cell_thickness_name)
+
+    ensure_vertex_group_exists(props.objects.walls, vg_props.stairs_name)
+    ensure_vertex_group_exists(props.objects.walls, vg_props.longest_path_name)
+    ensure_vertex_group_exists(props.objects.walls, vg_props.cell_thickness_name)
+
     vg_stairs_index = get_vertex_group_index(props.objects.cells, vg_props.stairs_name)
     vg_longest_path_index = get_vertex_group_index(props.objects.cells, vg_props.longest_path_name)
     vg_thickness_index = get_vertex_group_index(props.objects.cells, vg_props.cell_thickness_name)

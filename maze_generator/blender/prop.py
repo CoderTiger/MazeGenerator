@@ -163,6 +163,13 @@ class MGProperties(PropertyGroup):
         update=toggle_maze_weave,
     )
 
+    maze_weave_show_walls: BoolProperty(
+        name="Show Walls",
+        description="Show walls when using Weave Maze",
+        default=False,
+        update=update_objects_visibility,
+    )
+
     info_show_help: BoolProperty(
         name="Show Help",
         description="When toggled ON, this will add more precisions to each field in the panels",

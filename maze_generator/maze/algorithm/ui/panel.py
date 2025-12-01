@@ -42,6 +42,9 @@ class AlgorithmPanel(bpy.types.Panel):
                         layout.prop(mg_props, "maze_weave", slider=True)
                     else:
                         layout.prop(mg_props, "maze_weave_toggle", toggle=True)
+                    
+                    if mg_props.maze_weave > 0:
+                        layout.prop(mg_props, "maze_weave_show_walls", toggle=True)
                 else:
                     layout.prop(mg_props.algorithm, setting)
         

@@ -39,6 +39,12 @@ class Cell(object):
         try:
             return self._neighbors.index(other_cell)
         except ValueError:
+            # For CellOver, check neighbors_over if it exists
+            if hasattr(self, 'neighbors_over') and self.neighbors_over:
+                try:
+                    return len(self._neighbors) + self.neighbors_over.index(other_cell)
+                except ValueError:
+                    pass
             return -1
 
     def get_neighbor_towards(self, direction):
@@ -95,7 +101,8 @@ class Cell(object):
                     other_cell.set_neighbor(len(other_cell._neighbors) - 1, self)
 
     def get_neighbor_return(self, index):
-        return self.neighbor(index).get_neighbor_direction(self)
+        neighbor = self.neighbor(index)
+        return neighbor.get_neighbor_direction(self) if neighbor else -1
 
     def get_unlinked_neighbors(self):
         return [c for c in self.neighbors if not c.has_any_link()]
@@ -164,6 +171,8 @@ class Cell(object):
 
 
 class CellOver(Cell):
+    _NEIGHBORS_RETURN = (cst.SOUTH, cst.EAST, cst.NORTH, cst.WEST)
+
     def __init__(self, *args, **kwards):
         super().__init__(*args, **kwards)
         self.neighbors_over = None
@@ -236,11 +245,11 @@ class CellOver(Cell):
 
 class CellUnder(Cell):
     def __init__(self, cell_over):
-        super().__init__(cell_over.row, cell_over.column)
+        super().__init__(cell_over.row, cell_over.column, cell_over.level, half_neighbors=(0, 1))
         neigh_idx = (cst.NORTH, cst.SOUTH) if cell_over.can_host_under_vertical_psg() else (cst.WEST, cst.EAST)
         for n_idx in neigh_idx:
             self.set_neighbor(
-                n_idx, cell_over.neighbor(n_idx), (n_idx + len(cell_over._neighbors) / 2) % len(cell_over._neighbors)
+                n_idx, cell_over.neighbor(n_idx), int((n_idx + len(cell_over._neighbors) / 2) % len(cell_over._neighbors))
             )
             cell_over.set_neighbor(n_idx, None)
             self.link(self.neighbor(n_idx))

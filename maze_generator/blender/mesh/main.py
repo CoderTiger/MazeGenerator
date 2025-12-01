@@ -142,6 +142,8 @@ def get_mesh_info(grid, inset, force_outside):
         )
     # ...existing code...
         half_neighbors = c.half_neighbors
+        if half_neighbors is None:
+            half_neighbors = []
         for direction, w in enumerate(c.get_wall_mask()):
             if w and direction < len(verts_indices):
                 if c in exit_cells and not c.get_neighbor_towards(direction):

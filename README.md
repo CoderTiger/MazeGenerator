@@ -25,6 +25,17 @@ This version (0.5.0) has been updated to work with Blender 4.5+.
 
 **Note**: If you are using Blender 2.83, please use version 0.4.1. This version (0.5.0+) is specifically for Blender 4.5 and newer.
 
+# UPDATE 0.5.1: WEAVE MAZE SUPPORT
+
+This version (0.5.1) restores and fixes the **Weave Maze** functionality which was previously broken/disabled.
+
+## How to Use Weave Maze:
+1.  Set **Cell Type** to **Square**.
+2.  In the **Maze Properties** panel, look for the **Weave Maze** option.
+    -   For **Kruskal Randomized** algorithm: You can adjust the slider (0-100) to set the weave density.
+    -   For **Other Algorithms**: You can toggle the option ON/OFF (this enables the potential for weave connections during generation).
+3.  Click **Generate Maze**.
+
 ## The license for both the addon code and the things you generate with it are CC0 (or equivalent). You can do whatever you wish with it, no strings attached. If you do something cool, don't hesitate to start a thread here to showcase it, I'm interested. :)
 
 Go to https://github.com/Gorgious56/MazeGenerator/releases for the latest release.

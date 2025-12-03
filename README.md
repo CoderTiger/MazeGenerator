@@ -1,4 +1,5 @@
-# MazeGenerator
+# MazeGenerator - Updated to support Blender 4.5+
+
 Blender add-on for generating Mazes, with options for different types of cells and algorithms, 3D visualization in real time.
 
 > **Fork Information**: This is a fork of the original [MazeGenerator by Gorgious56](https://github.com/Gorgious56/MazeGenerator), updated to support Blender 4.5+.

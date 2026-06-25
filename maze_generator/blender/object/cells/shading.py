@@ -85,7 +85,15 @@ def __create_nodes(props):
         attributes={"layer_name": cst.GROUP},
     )
     create_node(nodes, NodeNames.hsv, "ShaderNodeHueSaturation", (-200, 0))
-    create_node(nodes, NodeNames.sep_rgb, "ShaderNodeSeparateRGB", (-1200, 0))
+    # ShaderNodeSeparateRGB was removed in Blender 5.0. Use ShaderNodeSeparateColor
+    # (mode "RGB") which exposes the same Color input and Red/Green/Blue outputs.
+    create_node(
+        nodes,
+        NodeNames.sep_rgb,
+        "ShaderNodeSeparateColor",
+        (-1200, 0),
+        attributes={"mode": "RGB"},
+    )
 
     create_node(nodes, NodeNames.cr_distance, "ShaderNodeValToRGB", (-800, -100))
     # if not already_created or props.generation.auto_overwrite:
@@ -113,7 +121,12 @@ def __create_nodes(props):
         NodeNames.math_compare,
         "ShaderNodeMath",
         (-1000, 200),
-        inputs={1: -0.01},
+        # input 1 = compared value, input 2 = epsilon. The epsilon defaults to
+        # 0.5, which wrongly grays every cell whose relative distance is <= ~0.49
+        # (i.e. the near-start half of the solution path). Using 0.01 makes the
+        # comparison effectively "relative_distance == 0", so only cells with no
+        # computed distance are caught, leaving the whole path colored.
+        inputs={1: -0.01, 2: 0.01},
         attributes={"operation": "COMPARE"},
     )
 

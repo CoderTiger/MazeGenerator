@@ -12,6 +12,8 @@ from maze_generator.maze.algorithm.algorithms import (
 )
 from maze_generator.maze.grid.grids import generate_grid
 from maze_generator.maze.pathfinding.grid import calc_distances
+from maze_generator.maze.analysis.rating import rate_maze
+from maze_generator.maze.analysis.store import set_rating
 
 from maze_generator.blender.shading.material.main import create_materials
 from maze_generator.blender.shading.texture.main import generate_textures
@@ -23,6 +25,27 @@ from maze_generator.blender.object.main import get_or_create_and_link_objects
 from maze_generator.blender.object.walls.viewport import update_wall_visibility
 
 from maze_generator.blender.preferences.helper import get_preferences
+
+
+def build_grid(props):
+    """
+    Replay the maze logic (grid, algorithm, dead ends, solution path) from the scene parameters.
+    Does not create or modify any object, mesh or texture. Returns None if the algorithm is incompatible.
+    """
+    grid = generate_grid(props)
+    grid.mask_cells()
+    grid.prepare_grid()
+    grid.init_cells_neighbors()
+    grid.prepare_union_find()
+
+    if is_algo_incompatible(props):
+        return None
+    work(grid, props)
+    grid.calc_state()
+    grid.sparse_dead_ends(props.algorithm.sparse_dead_ends, props.algorithm.seed)
+    grid.braid_dead_ends(100 - props.algorithm.keep_dead_ends, props.algorithm.seed)
+    calc_distances(grid, props)
+    return grid
 
 
 class MG_OT_GenerateMaze(bpy.types.Operator):
@@ -55,26 +78,18 @@ class MG_OT_GenerateMaze(bpy.types.Operator):
         scene = context.scene
         props = scene.mg_props
 
-        grid = generate_grid(props)
-        props.grid = grid
-        grid.mask_cells()
-        grid.prepare_grid()
-        grid.init_cells_neighbors()
-        grid.prepare_union_find()
-
-        if is_algo_incompatible(props):
+        grid = build_grid(props)
+        if grid is None:
             return
-        work(grid, props)
-        grid.calc_state()
-        grid.sparse_dead_ends(props.algorithm.sparse_dead_ends, props.algorithm.seed)
-        grid.braid_dead_ends(100 - props.algorithm.keep_dead_ends, props.algorithm.seed)
+        props.grid = grid
 
         get_or_create_and_link_objects(scene, addon_prefs)
         update_wall_visibility(props, is_algo_weaved(props))
 
         generate_textures(bpy.data.textures, props)
 
-        calc_distances(grid, props)
+        grid.rating = rate_maze(grid, props.algorithm.seed)
+        set_rating(scene.name_full, grid.rating)
 
         ensure_vertex_groups(props.objects, addon_prefs.vertex_groups_names)
         build_objects(props, addon_prefs, grid)

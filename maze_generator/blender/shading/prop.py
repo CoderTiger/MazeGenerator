@@ -48,3 +48,9 @@ class DisplayPropertyGroup(bpy.types.PropertyGroup):
         default=DEFAULT_CELL_VISUAL_TYPE,
         update=update_paint,
     )
+
+    show_rating_details: BoolProperty(
+        name="Show Rating Details",
+        description="Show the sub-scores behind the difficulty and fun ratings",
+        default=False,
+    )

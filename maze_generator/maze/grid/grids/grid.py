@@ -49,6 +49,7 @@ class Grid:
         self.groups = set()
         self.distances = None
         self.longest_path = None
+        self.rating = None
 
         self.mask = mask
 
